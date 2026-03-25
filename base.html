@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FitPals{% endblock %} — Your Fitness, All in One Place</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Familjen+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f7f2;--bg2:#eef1ea;--white:#fff;
+  --surface:#fff;--surface2:#f0f3ec;--border:#e0e6d8;
+  --accent:#2c7a3e;--accent-light:#e8f5ec;--accent2:#5cb85c;
+  --dark:#111c13;--text:#2a3a2c;--muted:#7a9080;--muted2:#aabcaa;
+  --red:#e05252;--orange:#f08030;--gold:#e8b830;--blue:#4a90c4;
+  --r:14px;--shadow:0 2px 16px rgba(0,0,0,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── NAV ── */
+nav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 24px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:var(--shadow);
+}
+.nav-logo{font-family:'Familjen Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--accent);}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-link{
+  padding:7px 14px;border-radius:8px;font-size:14px;font-weight:500;
+  color:var(--muted);transition:all .2s;
+}
+.nav-link:hover{background:var(--surface2);color:var(--text);}
+.nav-link.active{color:var(--accent);font-weight:600;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.cart-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:14px;font-weight:600;color:var(--text);transition:all .2s;
+}
+.cart-btn:hover{border-color:var(--accent);}
+.cart-badge{
+  background:var(--accent);color:#fff;
+  border-radius:100px;padding:1px 7px;font-size:11px;font-weight:700;
+}
+.btn{
+  padding:8px 18px;border-radius:9px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#235f30;transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:6px 14px;font-size:13px;}
+
+/* ── ALERTS ── */
+.alerts{position:fixed;top:70px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;max-width:340px;}
+.alert{
+  padding:12px 16px;border-radius:10px;font-size:13px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.12);animation:slideIn .3s ease;
+  display:flex;align-items:flex-start;gap:8px;
+}
+.alert-success{background:#e8f5ec;border:1px solid #b8ddc0;color:#1a5c2a;}
+.alert-error{background:#fce8e8;border:1px solid #f0b0b0;color:#8a1c1c;}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── PAGE HEADER ── */
+.page-hero{
+  background:linear-gradient(135deg,var(--accent),#1a5c2a);
+  padding:48px 24px;text-align:center;color:#fff;
+}
+.page-hero h1{font-family:'Familjen Grotesk',sans-serif;font-size:36px;font-weight:700;margin-bottom:8px;}
+.page-hero p{font-size:16px;color:rgba(255,255,255,.75);max-width:480px;margin:0 auto;}
+
+/* ── CONTAINER ── */
+.container{max-width:1100px;margin:0 auto;padding:32px 24px;}
+.container-sm{max-width:680px;margin:0 auto;padding:32px 24px;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
+
+/* ── FORM ── */
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.form-input{
+  width:100%;padding:11px 14px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--white);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);
+  transition:border-color .2s;outline:none;
+}
+.form-input:focus{border-color:var(--accent);}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9080' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+
+/* ── CHIP ── */
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600;}
+.chip-green{background:var(--accent-light);color:var(--accent);}
+.chip-blue{background:#e3f2fd;color:var(--blue);}
+.chip-orange{background:#fff3e0;color:var(--orange);}
+.chip-red{background:#fce4ec;color:var(--red);}
+.chip-muted{background:var(--surface2);color:var(--muted);}
+
+/* ── STARS ── */
+.stars{color:var(--gold);font-size:14px;letter-spacing:1px;}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--white);border-top:1px solid var(--border);
+  padding:28px 24px;margin-top:60px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+}
+.footer-logo{font-family:'Familjen Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--accent);}
+.footer-copy{font-size:13px;color:var(--muted);}
+
+/* ── PAYMENT ICONS ── */
+.pay-chip{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:6px 14px;
+  font-size:12px;font-weight:700;color:var(--text);cursor:pointer;
+  transition:all .2s;
+}
+.pay-chip.selected,.pay-chip:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state .icon{font-size:52px;margin-bottom:14px;}
+.empty-state h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-state p{font-size:14px;line-height:1.6;}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="alerts">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+  <div class="alert alert-{{ cat }}" onclick="this.remove()">
+    <span>{{ '✅' if cat == 'success' else '❌' }}</span>
+    <span>{{ msg }}</span>
+  </div>
+  {% endfor %}
+{% endwith %}
+</div>
+
+<nav>
+  <a href="/" class="nav-logo">FitPals</a>
+  <div class="nav-links">
+    <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+    <a href="/gyms" class="nav-link {% if '/gyms' in request.path %}active{% endif %}">Find Gyms</a>
+    <a href="/snaps" class="nav-link {% if '/snaps' in request.path %}active{% endif %}">📸 Snaps</a>
+    <a href="/store" class="nav-link {% if '/store' in request.path or '/cart' in request.path %}active{% endif %}">Store</a>
+    {% if session.user_id %}
+    <a href="/dashboard" class="nav-link {% if '/dashboard' in request.path %}active{% endif %}">Dashboard</a>
+    {% endif %}
+  </div>
+  <div class="nav-right">
+    <a href="/cart" class="cart-btn">
+      🛒 Cart {% if session.get('cart') %}<span class="cart-badge">{{ session['cart'].values()|sum }}</span>{% endif %}
+    </a>
+    {% if session.user_id %}
+      <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+    {% else %}
+      <a href="/login" class="btn btn-outline btn-sm">Login</a>
+      <a href="/register" class="btn btn-primary btn-sm">Sign Up</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="footer-logo">FitPals</div>
+  <div class="footer-copy">© 2025 FitPals Bangladesh · Built with 💪</div>
+  <div style="font-size:12px;color:var(--muted);">bKash · Nagad · Rocket · Card</div>
+</footer>
+
+<script>
+// Auto-dismiss alerts after 4s
+setTimeout(() => {
+  document.querySelectorAll('.alert').forEach(a => {
+    a.style.opacity = '0';
+    a.style.transform = 'translateX(20px)';
+    a.style.transition = 'all .4s';
+    setTimeout(() => a.remove(), 400);
+  });
+}, 4000);
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

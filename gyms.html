@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Find Gyms{% endblock %}
+{% block extra_css %}
+<style>
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.search-bar input{flex:1;min-width:200px;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.filter-chip{padding:7px 16px;border-radius:100px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none;}
+.filter-chip:hover,.filter-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.gym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+.gym-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all .2s;}
+.gym-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,0,0,.1);}
+.gym-img{height:130px;display:flex;align-items:center;justify-content:center;font-size:56px;}
+.gym-body{padding:16px;}
+.gym-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.gym-name{font-size:15px;font-weight:700;color:var(--dark);}
+.gym-open{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-light);border-radius:6px;padding:3px 8px;}
+.gym-closed{font-size:11px;font-weight:600;color:var(--red);background:#fce8e8;border-radius:6px;padding:3px 8px;}
+.gym-meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.amenity-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.gym-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);}
+.gym-hours{font-size:12px;color:var(--muted);}
+.result-count{font-size:14px;color:var(--muted);margin-bottom:16px;}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="page-hero" style="padding:40px 24px;">
+  <h1>Find Your Gym</h1>
+  <p>{{ gyms|length }} gyms near you in Bangladesh</p>
+</div>
+
+<div class="container">
+  <!-- SEARCH -->
+  <form method="GET" action="/gyms">
+    <div class="search-bar">
+      <input class="form-input" name="q" value="{{ search }}" placeholder="🔍  Search by name or area…" style="flex:2;">
+      <select class="form-input form-select" name="city" style="flex:1;max-width:200px;">
+        <option value="">All Cities</option>
+        {% for c in cities %}<option value="{{ c }}" {% if c == city %}selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">Search</button>
+      {% if search or city %}<a href="/gyms" class="btn btn-outline">Clear</a>{% endif %}
+    </div>
+  </form>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <a href="/gyms?{% if search %}q={{ search }}&{% endif %}{% if city %}city={{ city }}&{% endif %}filter=all" class="filter-chip {% if filt == 'all' %}active{% endif %}">All Gyms</a>
+    <a href="/gyms?{% if search %}q={{ search }}&{% endif %}{% if city %}city={{ city }}&{% endif %}filter=open" class="filter-chip {% if filt == 'open' %}active{% endif %}">Open Now</a>
+    <a href="/gyms?{% if search %}q={{ search }}&{% endif %}{% if city %}city={{ city }}&{% endif %}filter=rated" class="filter-chip {% if filt == 'rated' %}active{% endif %}">Top Rated</a>
+  </div>
+
+  <div class="result-count">Showing <strong>{{ gyms|length }}</strong> gyms</div>
+
+  {% if gyms %}
+  <div class="gym-grid">
+    {% for g in gyms %}
+    <div class="gym-card">
+      <a href="/gyms/{{ g.id }}">
+        <div class="gym-img" style="background:
+          {% set colors = ['#e8f5ec','#fff3e0','#fce4ec','#e3f2fd','#f3e5f5','#e0f7fa'] %}
+          {{ colors[loop.index0 % 6] }};">{{ g.emoji }}</div>
+      </a>
+      <div class="gym-body">
+        <div class="gym-top">
+          <div class="gym-name">{{ g.name }}</div>
+          {% if g.is_open %}<span class="gym-open">● Open</span>{% else %}<span class="gym-closed">● Closed</span>{% endif %}
+        </div>
+        <div class="gym-meta">
+          <span class="stars">{% for i in range(g.rating|int) %}★{% endfor %}</span>
+          {{ g.rating }} ({{ g.review_count }} reviews) · {{ g.address }}
+        </div>
+        <div class="amenity-row">
+          {% for a in g.amenities.split(',')[:4] %}<span class="chip chip-green">{{ a.strip() }}</span>{% endfor %}
+        </div>
+        <div class="gym-footer">
+          <span class="gym-hours">⏰ {{ g.hours }}</span>
+          <a href="/gyms/{{ g.id }}" class="btn btn-primary btn-sm">View Plans →</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🏟️</div>
+    <h3>No gyms found</h3>
+    <p>Try a different search term or city.</p>
+    <a href="/gyms" class="btn btn-primary" style="margin-top:16px;">Clear Filters</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

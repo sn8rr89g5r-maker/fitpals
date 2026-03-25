@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Snap by {{ snap.user_name }}{% endblock %}
+{% block extra_css %}
+<style>
+.snap-detail{max-width:640px;margin:0 auto;padding:28px 24px;}
+.snap-full{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.snap-header{display:flex;align-items:center;gap:12px;padding:16px;}
+.snap-av{width:44px;height:44px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);font-family:'Familjen Grotesk',sans-serif;}
+.snap-user{font-size:15px;font-weight:700;}
+.snap-loc{font-size:12px;color:var(--muted);}
+.snap-time{margin-left:auto;font-size:12px;color:var(--muted2);}
+.snap-pr{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1e4a28,var(--accent));color:#fff;border-radius:8px;padding:8px 14px;font-size:14px;font-weight:700;margin:0 16px 12px;}
+.snap-img{width:100%;max-height:480px;object-fit:cover;display:block;}
+.snap-no-img{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:64px;}
+.snap-caption{padding:14px 16px;font-size:15px;color:var(--text);line-height:1.7;}
+.snap-actions{display:flex;gap:14px;padding:12px 16px;border-top:1px solid var(--border);}
+.snap-action{display:flex;align-items:center;gap:6px;background:none;border:none;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;padding:6px 10px;border-radius:8px;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.snap-action:hover{background:var(--surface2);}
+.snap-action.liked{color:var(--red);}
+
+.comments-section{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.cs-header{padding:16px;border-bottom:1px solid var(--border);font-family:'Familjen Grotesk',sans-serif;font-size:16px;font-weight:700;}
+.comment-item{display:flex;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.comment-item:last-child{border-bottom:none;}
+.c-av{width:34px;height:34px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;font-family:'Familjen Grotesk',sans-serif;}
+.c-name{font-size:13px;font-weight:700;}
+.c-time{font-size:10px;color:var(--muted);margin-left:8px;}
+.c-body{font-size:13px;color:var(--text);margin-top:3px;line-height:1.5;}
+.comment-form{padding:14px 16px;background:var(--surface2);display:flex;gap:10px;align-items:flex-start;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="snap-detail">
+  <a href="/snaps" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--accent);font-weight:600;margin-bottom:16px;">← Back to Feed</a>
+
+  <div class="snap-full">
+    <div class="snap-header">
+      <div class="snap-av">{{ snap.user_name[:2]|upper }}</div>
+      <div>
+        <div class="snap-user">{{ snap.user_name }}</div>
+        <div class="snap-loc">📍 {{ snap.user_city }}</div>
+      </div>
+      <div class="snap-time">{{ snap.created_at[:10] }}</div>
+    </div>
+
+    {% if snap.snap_type == 'pr' and snap.pr_weight %}
+    <div style="padding:0 16px;"><div class="snap-pr">🏆 NEW PR — {{ snap.pr_weight }} {{ snap.pr_exercise }}</div></div>
+    {% endif %}
+
+    {% if snap.image_filename %}
+    <img src="/static/uploads/{{ snap.image_filename }}" class="snap-img" alt="Snap">
+    {% else %}
+    <div class="snap-no-img">{% if snap.snap_type == 'pr' %}🏆{% else %}💪{% endif %}</div>
+    {% endif %}
+
+    <div class="snap-caption">{{ snap.caption }}</div>
+
+    <div class="snap-actions">
+      <button class="snap-action {% if liked %}liked{% endif %}" onclick="likeSnap({{ snap.id }}, this)">
+        <span class="heart">{% if liked %}❤️{% else %}🤍{% endif %}</span>
+        <span id="like-count-{{ snap.id }}">{{ snap.like_count }}</span> Likes
+      </button>
+      <span class="snap-action">💬 {{ comments|length }} Comments</span>
+      {% if session.user_id == snap.user_id %}
+      <form method="POST" action="/snaps/{{ snap.id }}/delete" style="margin-left:auto;">
+        <button type="submit" class="snap-action" style="color:var(--red);" onclick="return confirm('Delete?')">🗑️ Delete</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COMMENTS -->
+  <div class="comments-section">
+    <div class="cs-header">💬 Comments ({{ comments|length }})</div>
+    {% for c in comments %}
+    <div class="comment-item">
+      <div class="c-av">{{ c.user_name[:2]|upper }}</div>
+      <div>
+        <div><span class="c-name">{{ c.user_name }}</span><span class="c-time">{{ c.created_at[:10] }}</span></div>
+        <div class="c-body">{{ c.body }}</div>
+      </div>
+    </div>
+    {% endfor %}
+    {% if not comments %}
+    <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No comments yet. Be first! 👇</div>
+    {% endif %}
+
+    {% if session.user_id %}
+    <div class="comment-form">
+      <div class="c-av" style="background:var(--accent-light);color:var(--accent);">{{ session.user_name[:2]|upper }}</div>
+      <form method="POST" action="/snaps/{{ snap.id }}/comment" style="flex:1;display:flex;gap:8px;">
+        <input class="form-input" name="body" placeholder="Write a comment…" required style="flex:1;">
+        <button type="submit" class="btn btn-primary btn-sm">Post</button>
+      </form>
+    </div>
+    {% else %}
+    <div style="padding:16px;text-align:center;">
+      <a href="/login" class="btn btn-outline btn-sm">Log in to comment</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<script>
+function likeSnap(id, btn) {
+  fetch('/snaps/' + id + '/like', {method:'POST'})
+    .then(r => r.json()).then(data => {
+      const heart = btn.querySelector('.heart');
+      const count = document.getElementById('like-count-' + id);
+      if (data.liked) { heart.textContent = '❤️'; btn.classList.add('liked'); }
+      else { heart.textContent = '🤍'; btn.classList.remove('liked'); }
+      count.textContent = data.count;
+    });
+}
+</script>
+{% endblock %}

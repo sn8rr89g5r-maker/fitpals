@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<style>
+.hero{
+  background:linear-gradient(145deg,#1e4a28,var(--accent));
+  padding:72px 24px;position:relative;overflow:hidden;
+}
+.hero::before{content:'';position:absolute;top:-80px;right:-60px;width:400px;height:400px;background:rgba(255,255,255,.04);border-radius:50%;}
+.hero::after{content:'';position:absolute;bottom:-100px;left:80px;width:300px;height:300px;background:rgba(255,255,255,.03);border-radius:50%;}
+.hero-inner{max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:1;}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:6px 14px;font-size:12px;font-weight:600;color:#fff;margin-bottom:20px;letter-spacing:.04em;}
+.hero h1{font-family:'Familjen Grotesk',sans-serif;font-size:48px;font-weight:700;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-1px;}
+.hero h1 span{color:#a8e63d;}
+.hero p{font-size:17px;color:rgba(255,255,255,.75);line-height:1.6;margin-bottom:32px;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-hero{padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s;}
+.btn-hero-main{background:#a8e63d;color:#000;}
+.btn-hero-main:hover{background:#bff050;transform:translateY(-2px);}
+.btn-hero-ghost{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);}
+.btn-hero-ghost:hover{background:rgba(255,255,255,.25);}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:44px;flex-wrap:wrap;}
+.h-stat-num{font-family:'Familjen Grotesk',sans-serif;font-size:28px;font-weight:700;color:#a8e63d;}
+.h-stat-label{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;}
+
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.section-title{font-family:'Familjen Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--dark);}
+.section-link{font-size:13px;color:var(--accent);font-weight:600;}
+
+.gym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.gym-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .2s;cursor:pointer;}
+.gym-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.1);}
+.gym-img{height:120px;display:flex;align-items:center;justify-content:center;font-size:52px;background:var(--surface2);}
+.gym-body{padding:14px;}
+.gym-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.gym-meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.gym-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);}
+
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.prod-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer;}
+.prod-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.08);}
+.prod-img{height:100px;display:flex;align-items:center;justify-content:center;font-size:44px;background:var(--surface2);}
+.prod-body{padding:12px;}
+.prod-brand{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.prod-name{font-size:13px;font-weight:700;margin-bottom:8px;line-height:1.3;}
+.prod-footer{display:flex;justify-content:space-between;align-items:center;}
+.prod-price{font-size:15px;font-weight:800;color:var(--accent);}
+.add-btn{width:32px;height:32px;border-radius:8px;background:var(--accent);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.add-btn:active{transform:scale(.9);}
+
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:48px;}
+.feat{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .2s;}
+.feat:hover{border-color:var(--accent);transform:translateY(-2px);}
+.feat-icon{font-size:32px;margin-bottom:14px;}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+</style>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">🇧🇩 Made for Bangladesh</div>
+    <h1>Your Fitness,<br><span>All in One Place.</span></h1>
+    <p>Find gyms near you, buy memberships, order supplements — all with bKash, Nagad & Rocket.</p>
+    <div class="hero-btns">
+      <a href="/gyms"><button class="btn-hero btn-hero-main">🏟️ Find a Gym</button></a>
+      <a href="/store"><button class="btn-hero btn-hero-ghost">🥤 Shop Supplements</button></a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="h-stat-num">120+</div><div class="h-stat-label">Partner Gyms</div></div>
+      <div><div class="h-stat-num">50+</div><div class="h-stat-label">Supplement Products</div></div>
+      <div><div class="h-stat-num">3</div><div class="h-stat-label">Payment Methods</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- GYMS -->
+  <div class="section-header">
+    <div class="section-title">🏟️ Popular Gyms</div>
+    <a href="/gyms" class="section-link">See all →</a>
+  </div>
+  <div class="gym-grid">
+    {% for g in gyms %}
+    <a href="/gyms/{{ g.id }}" class="gym-card">
+      <div class="gym-img" style="background:{% if loop.index == 1 %}#e8f5ec{% elif loop.index == 2 %}#fff3e0{% else %}#fce4ec{% endif %};">{{ g.emoji }}</div>
+      <div class="gym-body">
+        <div class="gym-name">{{ g.name }}</div>
+        <div class="gym-meta">⭐ {{ g.rating }} ({{ g.review_count }} reviews) · {{ g.address }}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          {% for a in g.amenities.split(',')[:3] %}<span class="chip chip-green">{{ a }}</span>{% endfor %}
+        </div>
+        <div class="gym-footer">
+          <span style="font-size:12px;color:var(--muted);">⏰ {{ g.hours }}</span>
+          <span class="btn btn-primary btn-sm">View Plans</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="section-header" style="margin-top:48px;">
+    <div class="section-title">🥤 Top Supplements</div>
+    <a href="/store" class="section-link">See all →</a>
+  </div>
+  <div class="prod-grid">
+    {% for p in products %}
+    <div class="prod-card">
+      <a href="/store"><div class="prod-img">{{ p.emoji }}</div></a>
+      <div class="prod-body">
+        <div class="prod-brand">{{ p.brand }}</div>
+        <div class="prod-name">{{ p.name }}</div>
+        <div class="prod-footer">
+          <div class="prod-price">৳{{ p.price }}</div>
+          <button class="add-btn" onclick="addToCart({{ p.id }}, this)">+</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- FEATURES -->
+  <div style="margin-top:48px;text-align:center;">
+    <div style="font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Why FitPals</div>
+    <div style="font-family:'Familjen Grotesk',sans-serif;font-size:30px;font-weight:700;margin-bottom:4px;">Everything you need.</div>
+    <div style="font-size:15px;color:var(--muted);">One app, zero hassle.</div>
+  </div>
+  <div class="features">
+    <div class="feat"><div class="feat-icon">📍</div><div class="feat-title">Find Gyms Near You</div><div class="feat-desc">Browse 120+ gyms with real ratings, photos, amenities, and live pricing.</div></div>
+    <div class="feat"><div class="feat-icon">💳</div><div class="feat-title">Pay Your Way</div><div class="feat-desc">bKash, Nagad, Rocket or card — buy memberships instantly without cash.</div></div>
+    <div class="feat"><div class="feat-icon">🥤</div><div class="feat-title">Supplements Delivered</div><div class="feat-desc">Order protein, pre-workout and more. Delivered in 24-48 hours to your door.</div></div>
+    <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">Track Everything</div><div class="feat-desc">Your memberships, orders, and gym history — all in your personal dashboard.</div></div>
+  </div>
+
+</div>
+
+<script>
+function addToCart(id, btn) {
+  fetch('/cart/add/' + id, {method:'POST'})
+    .then(r => r.json()).then(data => {
+      btn.textContent = '✓';
+      btn.style.background = '#5cb85c';
+      // update nav cart badge
+      let badge = document.querySelector('.cart-badge');
+      if (badge) badge.textContent = data.count;
+      else {
+        let cb = document.querySelector('.cart-btn');
+        cb.innerHTML = '🛒 Cart <span class="cart-badge">' + data.count + '</span>';
+      }
+      setTimeout(() => { btn.textContent = '+'; btn.style.background = 'var(--accent)'; }, 1200);
+    });
+}
+</script>
+{% endblock %}

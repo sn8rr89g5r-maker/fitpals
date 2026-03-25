@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Post a Snap{% endblock %}
+{% block extra_css %}
+<style>
+.type-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.type-card{border:2px solid var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--white);}
+.type-card:hover{border-color:var(--accent);}
+.type-card.selected{border-color:var(--accent);background:var(--accent-light);}
+.type-card .tc-icon{font-size:32px;margin-bottom:8px;}
+.type-card .tc-title{font-size:14px;font-weight:700;}
+.type-card .tc-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.pr-fields{display:none;}
+.pr-fields.show{display:block;}
+.char-count{font-size:11px;color:var(--muted);text-align:right;margin-top:4px;}
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);}
+.upload-area:hover{border-color:var(--accent);}
+.upload-area .ua-icon{font-size:32px;margin-bottom:8px;}
+.upload-area .ua-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.upload-area .ua-sub{font-size:12px;color:var(--muted);}
+#preview-img{display:none;width:100%;border-radius:12px;margin-top:12px;max-height:300px;object-fit:cover;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero" style="padding:40px 24px;"><h1>📸 Post a Snap</h1><p>Share your gym moment with the FitPals community.</p></div>
+<div class="container-sm">
+  <form method="POST" action="/snaps/post" enctype="multipart/form-data">
+
+    <!-- TYPE SELECTOR -->
+    <div style="font-family:'Familjen Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px;">What are you posting?</div>
+    <div class="type-selector">
+      <div class="type-card {% if request.args.get('type') == 'pr' %}selected{% endif %}" onclick="selectType('pr', this)">
+        <div class="tc-icon">🏆</div>
+        <div class="tc-title">New PR</div>
+        <div class="tc-sub">Personal record milestone</div>
+      </div>
+      <div class="type-card {% if request.args.get('type') != 'pr' %}selected{% endif %}" onclick="selectType('general', this)">
+        <div class="tc-icon">💪</div>
+        <div class="tc-title">Gym Moment</div>
+        <div class="tc-sub">Workout, progress, motivation</div>
+      </div>
+    </div>
+    <input type="hidden" name="snap_type" id="snap_type" value="{{ 'pr' if request.args.get('type') == 'pr' else 'general' }}">
+
+    <!-- PR FIELDS -->
+    <div class="pr-fields {% if request.args.get('type') == 'pr' %}show{% endif %}" id="pr-fields">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Exercise</label>
+          <input class="form-input" name="pr_exercise" placeholder="e.g. Deadlift, Bench Press">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Weight / Reps</label>
+          <input class="form-input" name="pr_weight" placeholder="e.g. 180kg, 20 reps">
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPTION -->
+    <div class="form-group">
+      <label class="form-label">Caption</label>
+      <textarea class="form-input" name="caption" id="caption" rows="4"
+        placeholder="Share what happened — PRs, feelings, motivation, anything! 💪"
+        maxlength="500" oninput="updateCount()" required style="resize:vertical;"></textarea>
+      <div class="char-count"><span id="char-count">0</span> / 500</div>
+    </div>
+
+    <!-- IMAGE UPLOAD -->
+    <div class="form-group">
+      <label class="form-label">Photo (optional)</label>
+      <div class="upload-area" onclick="document.getElementById('image').click()">
+        <div class="ua-icon">📷</div>
+        <div class="ua-title">Tap to add a photo</div>
+        <div class="ua-sub">JPG, PNG, GIF up to 8MB</div>
+      </div>
+      <input type="file" name="image" id="image" accept="image/*" style="display:none;" onchange="previewImage(this)">
+      <img id="preview-img" src="" alt="Preview">
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;">
+      🔥 Post Snap
+    </button>
+    <a href="/snaps" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:var(--accent);">← Back to Feed</a>
+  </form>
+</div>
+<script>
+function selectType(type, el) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('snap_type').value = type;
+  const prFields = document.getElementById('pr-fields');
+  prFields.classList.toggle('show', type === 'pr');
+}
+function updateCount() {
+  const val = document.getElementById('caption').value.length;
+  document.getElementById('char-count').textContent = val;
+}
+function previewImage(input) {
+  const img = document.getElementById('preview-img');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

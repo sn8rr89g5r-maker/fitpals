@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ gym.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.gym-hero{background:linear-gradient(135deg,#1e4a28,var(--accent));padding:40px 24px;color:#fff;}
+.gym-hero-inner{max-width:1100px;margin:0 auto;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;}
+.gym-emoji-big{font-size:80px;line-height:1;}
+.gym-hero-info{flex:1;}
+.gym-hero-name{font-family:'Familjen Grotesk',sans-serif;font-size:32px;font-weight:700;margin-bottom:8px;}
+.gym-hero-meta{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:14px;}
+.gym-hero-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.gym-hero-chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff;}
+
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.plan-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:all .2s;cursor:pointer;}
+.plan-card:hover,.plan-card.featured{border-color:var(--accent);background:var(--accent-light);}
+.plan-badge{display:inline-block;background:var(--accent);color:#fff;border-radius:6px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:10px;}
+.plan-name{font-size:14px;font-weight:700;margin-bottom:4px;}
+.plan-duration{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.plan-price{font-family:'Familjen Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.plan-desc{font-size:12px;color:var(--muted);margin-bottom:16px;}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.info-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.info-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.info-item{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;}
+.info-item:last-child{margin-bottom:0;}
+
+.review-list{display:flex;flex-direction:column;gap:12px;}
+.review-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.review-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.review-av{width:36px;height:36px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0;}
+.review-name{font-size:13px;font-weight:700;}
+.review-date{font-size:11px;color:var(--muted);margin-left:auto;}
+.review-body{font-size:13px;color:#4a5c43;line-height:1.6;}
+.review-form{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="gym-hero">
+  <div class="gym-hero-inner">
+    <div class="gym-emoji-big">{{ gym.emoji }}</div>
+    <div class="gym-hero-info">
+      <div class="gym-hero-name">{{ gym.name }}</div>
+      <div class="gym-hero-meta">
+        <span class="stars">{% for i in range(gym.rating|int) %}★{% endfor %}</span>
+        {{ gym.rating }} · {{ gym.review_count }} reviews · {{ gym.address }}, {{ gym.city }}
+      </div>
+      <div class="gym-hero-chips">
+        {% if gym.is_open %}<span class="gym-hero-chip">● Open Now</span>{% endif %}
+        <span class="gym-hero-chip">⏰ {{ gym.hours }}</span>
+        {% if gym.phone %}<span class="gym-hero-chip">📞 {{ gym.phone }}</span>{% endif %}
+        {% for a in gym.amenities.split(',')[:5] %}<span class="gym-hero-chip">{{ a.strip() }}</span>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ABOUT -->
+  {% if gym.description %}
+  <div class="card" style="padding:20px;margin-bottom:28px;">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">About</div>
+    <div style="font-size:14px;color:var(--text);line-height:1.7;">{{ gym.description }}</div>
+  </div>
+  {% endif %}
+
+  <!-- MEMBERSHIP PLANS -->
+  <div style="font-family:'Familjen Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px;">Membership Plans</div>
+  {% if plans %}
+  <div class="plans-grid" style="margin-bottom:32px;">
+    {% for plan in plans %}
+    <div class="plan-card {% if plan.duration_days == 30 %}featured{% endif %}">
+      {% if plan.duration_days == 30 %}<div class="plan-badge">Most Popular</div>{% endif %}
+      <div class="plan-name">{{ plan.name }}</div>
+      <div class="plan-duration">{{ plan.duration_days }} day{% if plan.duration_days > 1 %}s{% endif %} access</div>
+      <div class="plan-price">৳{{ plan.price }}</div>
+      <div class="plan-desc">{{ plan.description }}</div>
+      {% if session.user_id %}
+        <a href="/purchase/{{ plan.id }}"><button class="btn btn-primary" style="width:100%;">Buy Now →</button></a>
+      {% else %}
+        <a href="/login"><button class="btn btn-outline" style="width:100%;">Login to Buy</button></a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:var(--muted);margin-bottom:28px;">No plans available yet.</p>
+  {% endif %}
+
+  <!-- INFO -->
+  <div class="info-grid" style="margin-bottom:32px;">
+    <div class="info-card">
+      <div class="info-label">Amenities</div>
+      {% for a in gym.amenities.split(',') %}
+      <div class="info-item"><span>✅</span><span>{{ a.strip() }}</span></div>
+      {% endfor %}
+    </div>
+    <div class="info-card">
+      <div class="info-label">Details</div>
+      <div class="info-item">⏰ <span>{{ gym.hours }}</span></div>
+      <div class="info-item">📍 <span>{{ gym.address }}, {{ gym.city }}</span></div>
+      {% if gym.phone %}<div class="info-item">📞 <span>{{ gym.phone }}</span></div>{% endif %}
+      <div class="info-item">⭐ <span>{{ gym.rating }} / 5.0 rating</span></div>
+      <div class="info-item">💬 <span>{{ gym.review_count }} total reviews</span></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div style="font-family:'Familjen Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px;">Reviews</div>
+
+  {% if session.user_id %}
+  <div class="review-form" style="margin-bottom:20px;">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Leave a Review</div>
+    <form method="POST" action="/review/{{ gym.id }}">
+      <div class="form-group">
+        <label class="form-label">Rating</label>
+        <select class="form-input form-select" name="rating">
+          <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+          <option value="4">⭐⭐⭐⭐ Good</option>
+          <option value="3">⭐⭐⭐ Average</option>
+          <option value="2">⭐⭐ Poor</option>
+          <option value="1">⭐ Terrible</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Review</label>
+        <textarea class="form-input" name="body" rows="3" placeholder="Share your experience…" style="resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="review-list" style="margin-bottom:20px;">
+    {% if reviews %}
+      {% for r in reviews %}
+      <div class="review-item">
+        <div class="review-top">
+          <div class="review-av">{{ r.user_name[:2]|upper }}</div>
+          <div>
+            <div class="review-name">{{ r.user_name }}</div>
+            <div class="stars" style="font-size:12px;">{% for i in range(r.rating) %}★{% endfor %}</div>
+          </div>
+          <div class="review-date">{{ r.created_at[:10] }}</div>
+        </div>
+        <div class="review-body">{{ r.body }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state" style="padding:30px;">
+        <div class="icon">💬</div>
+        <h3>No reviews yet</h3>
+        <p>Be the first to review this gym!</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

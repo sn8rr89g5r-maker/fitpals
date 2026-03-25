@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Supplements Store{% endblock %}
+{% block extra_css %}
+<style>
+.store-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start;}
+.sidebar{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;position:sticky;top:80px;}
+.sidebar-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.cat-link{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--text);transition:all .2s;margin-bottom:4px;}
+.cat-link:hover,.cat-link.active{background:var(--accent-light);color:var(--accent);}
+.cat-link.active{font-weight:700;}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+.prod-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:all .2s;}
+.prod-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.1);}
+.prod-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--surface2);}
+.prod-body{padding:14px;}
+.prod-brand{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.prod-name{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;line-height:1.3;}
+.prod-weight{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.prod-footer{display:flex;justify-content:space-between;align-items:center;}
+.prod-price{font-size:16px;font-weight:800;color:var(--accent);}
+.add-btn{width:34px;height:34px;border-radius:9px;background:var(--accent);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-weight:700;}
+.add-btn:active{transform:scale(.9);}
+.search-row{display:flex;gap:10px;margin-bottom:20px;}
+.result-info{font-size:14px;color:var(--muted);margin-bottom:16px;}
+@media(max-width:700px){.store-layout{grid-template-columns:1fr;}.sidebar{position:static;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero" style="padding:40px 24px;">
+  <h1>🥤 Supplements Store</h1>
+  <p>Quality products, delivered to your door in 24-48 hours.</p>
+</div>
+<div class="container">
+  <div class="store-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-title">Categories</div>
+      <a href="/store" class="cat-link {% if current_cat == 'all' %}active{% endif %}">🛒 All Products</a>
+      {% for cat in categories %}
+      <a href="/store?cat={{ cat }}" class="cat-link {% if current_cat == cat %}active{% endif %}">
+        {% if cat == 'Protein' %}🥛{% elif cat == 'Pre-Workout' %}⚡{% elif cat == 'Mass Gainer' %}🍌{% elif cat == 'Creatine' %}💊{% elif cat == 'BCAA' %}🟡{% elif cat == 'Vitamins' %}🔵{% elif cat == 'Gear' %}🧤{% else %}📦{% endif %}
+        {{ cat }}
+      </a>
+      {% endfor %}
+      {% if session.get('cart') %}
+      <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">
+      <a href="/cart" class="btn btn-primary" style="width:100%;justify-content:center;">
+        🛒 View Cart ({{ session['cart'].values()|sum }})
+      </a>
+      {% endif %}
+    </div>
+    <!-- MAIN -->
+    <div>
+      <div class="search-row">
+        <form method="GET" action="/store" style="display:flex;gap:10px;flex:1;">
+          <input type="hidden" name="cat" value="{{ current_cat }}">
+          <input class="form-input" name="q" value="{{ search }}" placeholder="🔍 Search products…" style="flex:1;">
+          <button type="submit" class="btn btn-primary">Search</button>
+          {% if search %}<a href="/store?cat={{ current_cat }}" class="btn btn-outline">Clear</a>{% endif %}
+        </form>
+      </div>
+      <div class="result-info">Showing <strong>{{ products|length }}</strong> products{% if current_cat != 'all' %} in <strong>{{ current_cat }}</strong>{% endif %}</div>
+      {% if products %}
+      <div class="products-grid">
+        {% for p in products %}
+        <div class="prod-card">
+          <div class="prod-img">{{ p.emoji }}</div>
+          <div class="prod-body">
+            <div class="prod-brand">{{ p.brand }}</div>
+            <div class="prod-name">{{ p.name }}</div>
+            <div class="prod-weight">{{ p.weight }} · {{ p.servings }}</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.4;">{{ p.description[:60] }}…</div>
+            <div class="prod-footer">
+              <div class="prod-price">৳{{ p.price }}</div>
+              <button class="add-btn" onclick="addToCart({{ p.id }}, this)">+</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">🥤</div>
+        <h3>No products found</h3>
+        <p>Try a different category or search term.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+function addToCart(id, btn) {
+  fetch('/cart/add/' + id, {method:'POST'})
+    .then(r => r.json()).then(data => {
+      btn.textContent = '✓'; btn.style.background = '#5cb85c';
+      let badge = document.querySelector('.cart-badge');
+      if (badge) badge.textContent = data.count;
+      else { let cb = document.querySelector('.cart-btn'); cb.innerHTML = '🛒 Cart <span class="cart-badge">' + data.count + '</span>'; }
+      setTimeout(() => { btn.textContent = '+'; btn.style.background = 'var(--accent)'; }, 1200);
+    });
+}
+</script>
+{% endblock %}

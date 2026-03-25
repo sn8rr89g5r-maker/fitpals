@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block extra_css %}
+<style>
+.dash-hero{background:linear-gradient(135deg,#1e4a28,var(--accent));padding:32px 24px;color:#fff;}
+.dash-hero-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:16px;}
+.dash-av{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;font-family:'Familjen Grotesk',sans-serif;flex-shrink:0;}
+.dash-name{font-family:'Familjen Grotesk',sans-serif;font-size:24px;font-weight:700;}
+.dash-sub{font-size:13px;color:rgba(255,255,255,.7);margin-top:2px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.section-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.sc-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.sc-title{font-family:'Familjen Grotesk',sans-serif;font-size:16px;font-weight:700;}
+.sc-body{padding:16px 20px;}
+.mem-item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.mem-item:last-child{border-bottom:none;}
+.mem-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.mem-gym{font-size:13px;font-weight:700;}
+.mem-plan{font-size:12px;color:var(--muted);margin-top:2px;}
+.mem-badge{margin-left:auto;font-size:11px;font-weight:600;}
+.order-item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.order-item:last-child{border-bottom:none;}
+.order-icon{width:40px;height:40px;border-radius:10px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.order-id{font-size:13px;font-weight:700;}
+.order-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.order-total{margin-left:auto;font-size:14px;font-weight:800;color:var(--accent);}
+@media(max-width:700px){.dash-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="dash-hero">
+  <div class="dash-hero-inner">
+    <div class="dash-av">{{ session.user_name[:2]|upper }}</div>
+    <div>
+      <div class="dash-name">{{ session.user_name }}</div>
+      <div class="dash-sub">{{ memberships|length }} active membership{% if memberships|length != 1 %}s{% endif %} · {{ orders|length }} order{% if orders|length != 1 %}s{% endif %}</div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="dash-grid">
+    <!-- MEMBERSHIPS -->
+    <div class="section-card">
+      <div class="sc-header">
+        <div class="sc-title">🏟️ My Memberships</div>
+        <a href="/gyms" class="btn btn-primary btn-sm">Find Gym +</a>
+      </div>
+      <div class="sc-body">
+        {% if memberships %}
+          {% for m in memberships %}
+          <div class="mem-item">
+            <div class="mem-icon">🏟️</div>
+            <div>
+              <div class="mem-gym">{{ m.gym_name }}</div>
+              <div class="mem-plan">{{ m.plan_name }} · {{ m.duration_days }} days · via {{ m.payment_method|upper }}</div>
+              <div class="mem-plan">Purchased: {{ m.created_at[:10] }}</div>
+            </div>
+            <span class="mem-badge chip chip-green">{{ m.status|capitalize }}</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state" style="padding:30px 10px;">
+            <div class="icon">🏟️</div>
+            <h3>No memberships yet</h3>
+            <p>Find a gym and buy your first membership.</p>
+            <a href="/gyms" class="btn btn-primary" style="margin-top:14px;">Browse Gyms</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- ORDERS -->
+    <div class="section-card">
+      <div class="sc-header">
+        <div class="sc-title">📦 My Orders</div>
+        <a href="/store" class="btn btn-primary btn-sm">Shop +</a>
+      </div>
+      <div class="sc-body">
+        {% if orders %}
+          {% for o in orders %}
+          <div class="order-item">
+            <div class="order-icon">📦</div>
+            <div>
+              <div class="order-id">Order #{{ o.id }}</div>
+              <div class="order-meta">{{ o.product_names or 'Items' }} · via {{ o.payment_method|upper }}</div>
+              <div class="order-meta">{{ o.created_at[:10] }} · <span class="chip chip-green" style="font-size:10px;">{{ o.status|capitalize }}</span></div>
+            </div>
+            <div class="order-total">৳{{ o.total }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state" style="padding:30px 10px;">
+            <div class="icon">📦</div>
+            <h3>No orders yet</h3>
+            <p>Shop our supplements store.</p>
+            <a href="/store" class="btn btn-primary" style="margin-top:14px;">Shop Now</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <!-- QUICK LINKS -->
+  <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+    <a href="/gyms" class="card" style="flex:1;min-width:160px;padding:20px;display:flex;align-items:center;gap:12px;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-size:28px;">📍</span><div><div style="font-size:14px;font-weight:700;">Find a Gym</div><div style="font-size:12px;color:var(--muted);">Browse 120+ gyms</div></div>
+    </a>
+    <a href="/store" class="card" style="flex:1;min-width:160px;padding:20px;display:flex;align-items:center;gap:12px;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-size:28px;">🥤</span><div><div style="font-size:14px;font-weight:700;">Shop Store</div><div style="font-size:12px;color:var(--muted);">50+ products</div></div>
+    </a>
+    <a href="/cart" class="card" style="flex:1;min-width:160px;padding:20px;display:flex;align-items:center;gap:12px;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-size:28px;">🛒</span><div><div style="font-size:14px;font-weight:700;">My Cart</div><div style="font-size:12px;color:var(--muted);">{% if session.get('cart') %}{{ session['cart'].values()|sum }} items{% else %}Empty{% endif %}</div></div>
+    </a>
+  </div>
+</div>
+{% endblock %}

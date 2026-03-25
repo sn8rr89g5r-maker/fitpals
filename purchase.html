@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Buy {{ plan.name }}{% endblock %}
+{% block content %}
+<div class="page-hero" style="padding:40px 24px;"><h1>Buy Membership</h1><p>{{ plan.gym_name }}</p></div>
+<div class="container-sm">
+  <div class="card" style="padding:24px;margin-bottom:16px;text-align:center;">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">{{ plan.gym_name }}</div>
+    <div style="font-family:'Familjen Grotesk',sans-serif;font-size:26px;font-weight:700;margin-bottom:4px;">{{ plan.name }}</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:12px;">{{ plan.duration_days }} days · {{ plan.description }}</div>
+    <div style="font-family:'Familjen Grotesk',sans-serif;font-size:44px;font-weight:700;color:var(--accent);">৳{{ plan.price }}</div>
+  </div>
+  <form method="POST">
+    <div class="card" style="padding:24px;margin-bottom:16px;">
+      <div style="font-family:'Familjen Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:16px;">Payment Method</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label style="cursor:pointer;"><input type="radio" name="payment_method" value="bkash" checked style="display:none;"> <span class="pay-chip selected" id="pay-bkash">💚 bKash</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="payment_method" value="nagad" style="display:none;"> <span class="pay-chip" id="pay-nagad">🟠 Nagad</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="payment_method" value="rocket" style="display:none;"> <span class="pay-chip" id="pay-rocket">🟣 Rocket</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="payment_method" value="card" style="display:none;"> <span class="pay-chip" id="pay-card">💳 Card</span></label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:15px;">✅ Confirm Purchase — ৳{{ plan.price }}</button>
+  </form>
+  <a href="/gyms/{{ plan.gym_id }}" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:var(--accent);">← Back to {{ plan.gym_name }}</a>
+</div>
+<script>
+document.querySelectorAll('input[name="payment_method"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.querySelectorAll('.pay-chip').forEach(c => c.classList.remove('selected'));
+    document.getElementById('pay-' + r.value).classList.add('selected');
+  });
+});
+</script>
+{% endblock %}

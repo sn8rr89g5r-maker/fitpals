@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+<div class="page-hero" style="padding:40px 24px;"><h1>Join FitPals</h1><p>Create your free account and start your fitness journey.</p></div>
+<div class="container-sm">
+  <div class="card" style="padding:32px;">
+    <form method="POST" action="/register">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" name="name" required placeholder="Alex Khan">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" name="email" required placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" name="password" required placeholder="Choose a strong password" minlength="6">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your City</label>
+        <select class="form-input form-select" name="city">
+          <option>Dhaka</option>
+          <option>Chittagong</option>
+          <option selected>Sylhet</option>
+          <option>Rajshahi</option>
+          <option>Khulna</option>
+          <option>Barishal</option>
+          <option>Rangpur</option>
+          <option>Mymensingh</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:13px;margin-top:8px;">Create Account →</button>
+    </form>
+    <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--muted);">
+      Already have an account? <a href="/login" style="color:var(--accent);font-weight:600;">Log in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

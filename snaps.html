@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Snaps — Gym Feed{% endblock %}
+{% block extra_css %}
+<style>
+.feed-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;max-width:1000px;margin:0 auto;padding:28px 24px;}
+.feed-col{}
+.sidebar-col{position:sticky;top:80px;display:flex;flex-direction:column;gap:16px;}
+
+/* POST BOX */
+.post-box{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.post-box-top{display:flex;gap:12px;align-items:center;margin-bottom:14px;}
+.post-av{width:40px;height:40px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0;font-family:'Familjen Grotesk',sans-serif;}
+.post-trigger{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;}
+.post-trigger:hover{border-color:var(--accent);}
+
+/* FILTERS */
+.feed-filters{display:flex;gap:8px;margin-bottom:16px;}
+.ff{padding:7px 16px;border-radius:100px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;text-decoration:none;transition:all .2s;}
+.ff:hover,.ff.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* SNAP CARD */
+.snap-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:14px;transition:all .2s;}
+.snap-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.08);}
+.snap-header{display:flex;align-items:center;gap:10px;padding:14px 16px 0;}
+.snap-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'Familjen Grotesk',sans-serif;flex-shrink:0;}
+.snap-user{font-size:14px;font-weight:700;}
+.snap-location{font-size:11px;color:var(--muted);margin-top:1px;}
+.snap-time{margin-left:auto;font-size:11px;color:var(--muted2);}
+
+.snap-pr-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#1e4a28,var(--accent));
+  color:#fff;border-radius:8px;padding:6px 12px;
+  font-size:13px;font-weight:700;margin:10px 16px 0;
+}
+
+.snap-image{width:100%;max-height:360px;object-fit:cover;display:block;margin-top:12px;}
+.snap-body{padding:12px 16px;}
+.snap-caption{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:12px;}
+
+.snap-actions{display:flex;gap:16px;padding:0 16px 14px;border-top:1px solid var(--border);padding-top:12px;}
+.snap-action{display:flex;align-items:center;gap:6px;background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;padding:6px 10px;border-radius:8px;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.snap-action:hover{background:var(--surface2);}
+.snap-action.liked{color:var(--red);}
+.snap-action.liked .heart{color:var(--red);}
+.snap-del{margin-left:auto;color:var(--muted2);}
+.snap-del:hover{color:var(--red);background:#fce8e8;}
+
+/* SIDEBAR */
+.sidebar-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;}
+.sc-title{font-family:'Familjen Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:14px;}
+.top-user{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.top-user:last-child{margin-bottom:0;}
+.tu-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Familjen Grotesk',sans-serif;flex-shrink:0;}
+.tu-name{font-size:13px;font-weight:700;}
+.tu-city{font-size:11px;color:var(--muted);}
+.tu-snaps{font-size:12px;font-weight:700;color:var(--accent);margin-left:auto;}
+
+.pr-tip{background:var(--accent-light);border:1px solid var(--accent3);border-radius:12px;padding:14px;}
+.pr-tip-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+.pr-tip-body{font-size:12px;color:var(--text);line-height:1.6;}
+
+@media(max-width:750px){.feed-layout{grid-template-columns:1fr;padding:16px;}.sidebar-col{display:none;}}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="feed-layout">
+  <!-- MAIN FEED -->
+  <div class="feed-col">
+
+    <!-- POST BOX -->
+    {% if session.user_id %}
+    <div class="post-box">
+      <div class="post-box-top">
+        <div class="post-av">{{ session.user_name[:2]|upper }}</div>
+        <button class="post-trigger" onclick="window.location='/snaps/post'">
+          💪 Share your workout, PR, or gym moment…
+        </button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a href="/snaps/post?type=pr" class="btn btn-outline btn-sm">🏆 Log a PR</a>
+        <a href="/snaps/post" class="btn btn-primary btn-sm">📸 Post Snap</a>
+      </div>
+    </div>
+    {% else %}
+    <div class="post-box" style="text-align:center;">
+      <div style="font-size:28px;margin-bottom:8px;">💪</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Join the FitPals community</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Share your PRs, post gym moments, and connect with athletes across Bangladesh.</div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <a href="/register" class="btn btn-primary">Sign Up Free</a>
+        <a href="/login" class="btn btn-outline">Log In</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- FILTERS -->
+    <div class="feed-filters">
+      <a href="/snaps" class="ff {% if filt == 'all' %}active{% endif %}">🔥 All</a>
+      <a href="/snaps?filter=pr" class="ff {% if filt == 'pr' %}active{% endif %}">🏆 PRs Only</a>
+    </div>
+
+    <!-- FEED -->
+    {% if feed %}
+      {% for snap in feed %}
+      {% set colors = ['#e8f5ec','#fff3e0','#fce4ec','#e3f2fd','#f3e5f5','#e0f7fa'] %}
+      {% set tcolors = ['var(--accent)','var(--orange)','var(--red)','var(--blue)','#9c27b0','#00bcd4'] %}
+      {% set ci = loop.index0 % 6 %}
+      <div class="snap-card" id="snap-{{ snap.id }}">
+        <div class="snap-header">
+          <div class="snap-av" style="background:{{ colors[ci] }};color:{{ tcolors[ci] }};">
+            {{ snap.user_name[:2]|upper }}
+          </div>
+          <div>
+            <div class="snap-user">{{ snap.user_name }}</div>
+            <div class="snap-location">📍 {{ snap.user_city }}</div>
+          </div>
+          <div class="snap-time">{{ snap.created_at[:10] }}</div>
+        </div>
+
+        {% if snap.snap_type == 'pr' and snap.pr_weight %}
+        <div class="snap-pr-badge">🏆 NEW PR — {{ snap.pr_weight }} {{ snap.pr_exercise }}</div>
+        {% endif %}
+
+        {% if snap.image_filename %}
+        <img src="/static/uploads/{{ snap.image_filename }}" class="snap-image" alt="Snap">
+        {% else %}
+        <div style="margin:12px 16px 0;background:var(--surface2);border-radius:12px;height:120px;display:flex;align-items:center;justify-content:center;font-size:48px;">
+          {% if snap.snap_type == 'pr' %}🏆{% else %}💪{% endif %}
+        </div>
+        {% endif %}
+
+        <div class="snap-body">
+          <div class="snap-caption">{{ snap.caption }}</div>
+        </div>
+
+        <div class="snap-actions">
+          <button class="snap-action {% if snap.id in liked %}liked{% endif %}" onclick="likeSnap({{ snap.id }}, this)">
+            <span class="heart">{% if snap.id in liked %}❤️{% else %}🤍{% endif %}</span>
+            <span id="like-count-{{ snap.id }}">{{ snap.like_count }}</span>
+          </button>
+          <a href="/snaps/{{ snap.id }}" class="snap-action">
+            💬 {{ comment_counts.get(snap.id, 0) }}
+          </a>
+          {% if session.user_id == snap.user_id %}
+          <form method="POST" action="/snaps/{{ snap.id }}/delete" style="margin-left:auto;">
+            <button type="submit" class="snap-action snap-del" onclick="return confirm('Delete this snap?')">🗑️</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">📸</div>
+      <h3>No snaps yet</h3>
+      <p>Be the first to share a gym moment!</p>
+      {% if session.user_id %}<a href="/snaps/post" class="btn btn-primary" style="margin-top:16px;">Post First Snap</a>{% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-col">
+    <div class="sidebar-card">
+      <div class="sc-title">🏆 Top Athletes</div>
+      {% set top_users = [
+        ('Rafiq H.','Sylhet','#e8f5ec','var(--accent)','24 snaps'),
+        ('Sadia N.','Dhaka','#e3f2fd','var(--blue)','18 snaps'),
+        ('Tamim M.','Chittagong','#fff3e0','var(--orange)','15 snaps'),
+        ('Karim R.','Dhaka','#fce4ec','var(--red)','12 snaps'),
+      ] %}
+      {% for name, city, bg, col, snaps in top_users %}
+      <div class="top-user">
+        <div class="tu-av" style="background:{{ bg }};color:{{ col }};">{{ name[:2]|upper }}</div>
+        <div><div class="tu-name">{{ name }}</div><div class="tu-city">📍 {{ city }}</div></div>
+        <div class="tu-snaps">{{ snaps }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="pr-tip">
+      <div class="pr-tip-title">💡 Log Your PR</div>
+      <div class="pr-tip-body">Hit a new personal record? Share it with the community and inspire others. Use the PR tag so it gets highlighted! 🏆</div>
+      {% if session.user_id %}
+      <a href="/snaps/post?type=pr" class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;">Log My PR →</a>
+      {% endif %}
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sc-title">📸 What to Post</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:13px;display:flex;gap:8px;align-items:flex-start;"><span>🏆</span><span>New personal records (PRs)</span></div>
+        <div style="font-size:13px;display:flex;gap:8px;align-items:flex-start;"><span>💪</span><span>Post-workout moments</span></div>
+        <div style="font-size:13px;display:flex;gap:8px;align-items:flex-start;"><span>🥗</span><span>Meal prep & nutrition</span></div>
+        <div style="font-size:13px;display:flex;gap:8px;align-items:flex-start;"><span>🌅</span><span>Early morning grind</span></div>
+        <div style="font-size:13px;display:flex;gap:8px;align-items:flex-start;"><span>🎉</span><span>Milestone achievements</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function likeSnap(id, btn) {
+  fetch('/snaps/' + id + '/like', {method:'POST'})
+    .then(r => r.json()).then(data => {
+      const heart = btn.querySelector('.heart');
+      const count = document.getElementById('like-count-' + id);
+      if (data.liked) {
+        heart.textContent = '❤️'; btn.classList.add('liked');
+      } else {
+        heart.textContent = '🤍'; btn.classList.remove('liked');
+      }
+      count.textContent = data.count;
+    });
+}
+</script>
+{% endblock %}
